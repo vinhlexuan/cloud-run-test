@@ -17,10 +17,8 @@ jobs:
           export_default_credentials: true
 
       # Optional: Authenticate Docker to use Google Container Registry if needed
-      - name: Authenticate Docker with Google Container Registry
-        run: gcloud auth configure-docker
+      - name: Build and Push Docker Image
+        run: |
+          gcloud builds submit --tag gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/my-node-app
 
       # Example: Run gcloud commands here (e.g., deploy to App Engine, Kubernetes, etc.)
-      - name: Deploy to App Engine
-        run: |
-          gcloud app deploy --quiet
