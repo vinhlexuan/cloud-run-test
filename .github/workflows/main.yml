@@ -1,0 +1,26 @@
+on: [push, pull_request]
+
+jobs:
+  gcloud-login:
+    runs-on: ubuntu-latest
+    steps:
+    # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Google Cloud SDK
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCLOUD_PROJECT_ID }}  # Your Google Cloud project ID
+          service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
+          export_default_credentials: true
+
+      # Optional: Authenticate Docker to use Google Container Registry if needed
+      - name: Authenticate Docker with Google Container Registry
+        run: gcloud auth configure-docker
+
+      # Example: Run gcloud commands here (e.g., deploy to App Engine, Kubernetes, etc.)
+      - name: Deploy to App Engine
+        run: |
+          gcloud app deploy --quiet
