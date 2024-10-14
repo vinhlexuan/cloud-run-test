@@ -1,24 +1,33 @@
-on: [push, pull_request]
+name: Google Cloud CLI Action
+
+on:
+  push:
+    branches:
+      - main
 
 jobs:
-  gcloud-login:
+  gcloud:
     runs-on: ubuntu-latest
+
     steps:
-    # Checkout the repository
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      # Set up Google Cloud SDK
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v1
-        with:
-          project_id: ${{ secrets.GCLOUD_PROJECT_ID }}  # Your Google Cloud project ID
-          service_account_key: ${{ secrets.GCLOUD_SERVICE_KEY }}
-          export_default_credentials: true
-
-      # Optional: Authenticate Docker to use Google Container Registry if needed
-      - name: Build and Push Docker Image
+      - name: Set up Google Cloud CLI
         run: |
-          gcloud builds submit --tag gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/my-node-app
+          echo "Installing Google Cloud SDK..."
+          echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] http://packages.cloud.google.com/apt cloud-sdk main" | sudo tee -a /etc/apt/sources.list.d/google-cloud-sdk.list
+          curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key --keyring /usr/share/keyrings/cloud.google.gpg add -
+          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
 
-      # Example: Run gcloud commands here (e.g., deploy to App Engine, Kubernetes, etc.)
+      - name: Authenticate to Google Cloud
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_SERVICE_KEY }}
+        run: |
+          echo "${{ secrets.GCLOUD_SERVICE_KEY }}" > ${HOME}/gcloud-key.json
+          gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
+
+      - name: Run gcloud commands
+        run: |
+          gcloud config set project ${{ secrets.GCLOUD_PROJECT_ID }}
+          gcloud builds submit --tag gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/my-node-app
