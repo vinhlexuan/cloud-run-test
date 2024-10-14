@@ -19,6 +19,7 @@ jobs:
       # Optional: Authenticate Docker to use Google Container Registry if needed
       - name: Build and Push Docker Image
         run: |
+          gcloud config set account ${{ secrets.GCLOUD_ACCOUNT_EMAIL }} 
           gcloud builds submit --tag gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/my-node-app
 
       # Example: Run gcloud commands here (e.g., deploy to App Engine, Kubernetes, etc.)
