@@ -24,9 +24,7 @@ jobs:
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_SERVICE_KEY }}
         run: |
-          echo ${HOME}
-          echo ${{ secrets.GCLOUD_SERVICE_KEY }}
-          echo "${{ secrets.GCLOUD_SERVICE_KEY }}" > ${HOME}/gcloud-key.json
+          echo ${{ secrets.GCLOUD_SERVICE_KEY }} > ${HOME}/gcloud-key.json
           jq -c . ${HOME}/gcloud-key.json
           gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
 
