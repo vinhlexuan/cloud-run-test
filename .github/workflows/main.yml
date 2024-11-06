@@ -31,4 +31,11 @@ jobs:
       - name: Run gcloud commands
         run: |
           gcloud config set project ${{ secrets.GCLOUD_PROJECT_ID }}
-          gcloud builds submit --tag gcr.io/${{ secrets.GCLOUD_PROJECT_ID }}/my-node-app
+          gcloud builds submit --tag
+
+      - name: Send Slack Notification on Failure
+        if: failure()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          curl -X POST -H 'Content-type: application/json' --data '{"text":"❌ Pipeline failed in repository '"$GITHUB_REPOSITORY"' on branch '"$GITHUB_REF"'. Check it out: '"$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"'"}' $SLACK_WEBHOOK_URL
